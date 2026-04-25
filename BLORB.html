@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slayer Legend - Black Orb Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #1a202c; color: #e2e8f0; }
+        .input-group input, .input-group select {
+            background-color: #2d3748;
+            color: #fff;
+            border: 1px solid #4a5568;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            width: 100%;
+        }
+        .input-group input:disabled, .input-group select:disabled {
+            background-color: #1a202c;
+            color: #718096;
+            border-color: #4a5568;
+            opacity: 0.8;
+        }
+        .card { background-color: #2d3748; padding: 1.5rem; border-radius: 0.5rem; }
+        
+        .amp-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+        .amp-row input, .amp-row select { flex: 1; margin-top: 0 !important; }
+        
+        .btn-x2 {
+            flex-shrink: 0;
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.25rem;
+            font-weight: 800;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-x2.inactive {
+            background-color: #4a5568;
+            color: #a0aec0;
+            border: 1px solid #718096;
+        }
+        .btn-x2.active {
+            background-color: #d69e2e;
+            color: #fff;
+            border: 1px solid #ecc94b;
+            box-shadow: 0 0 10px rgba(214, 158, 46, 0.4);
+        }
+    </style>
+</head>
+<body class="p-6 font-sans antialiased">
+
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-blue-400">Black Orb Optimizer - By Ryryn</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="card border border-gray-600 flex flex-col relative">
+                <div class="absolute top-4 right-4 text-xs font-bold bg-gray-700 px-2 py-1 rounded text-gray-400">LEFT</div>
+                <h2 class="text-xl font-bold mb-4 text-gray-300">Current Accessory</h2>
+                
+                <div class="input-group mb-4 grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-sm font-semibold mb-1 block">Element</label>
+                        <select id="curr-element" disabled class="cursor-not-allowed">
+                            <option value="FIRE">Fire</option>
+                            <option value="WATER">Water</option>
+                            <option value="WIND">Wind</option>
+                            <option value="EARTH">Earth</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold mb-1 block">Main Stat (%)</label>
+                        <input type="number" id="curr-main" step="0.01" placeholder="e.g., 4.5" oninput="calculateAll()">
+                    </div>
+                </div>
+                
+                <h3 class="text-sm font-semibold text-gray-400 mt-4 mb-2">AMP Lines (%)</h3>
+                <div class="space-y-2 input-group">
+                    <div class="amp-row">
+                        <input type="number" id="curr-amp1" step="0.01" placeholder="AMP 1" oninput="calculateAll()">
+                        <select id="curr-type1" onchange="calculateAll()"><option value="ALL">ALL</option><option value="FIRE">Fire</option><option value="WATER">Water</option><option value="WIND">Wind</option><option value="EARTH">Earth</option></select>
+                        <button id="curr-x2-1" data-active="false" class="btn-x2 inactive" onclick="toggleX2('curr-x2-1')">x2</button>
+                    </div>
+                    <div class="amp-row">
+                        <input type="number" id="curr-amp2" step="0.01" placeholder="AMP 2" oninput="calculateAll()">
+                        <select id="curr-type2" onchange="calculateAll()"><option value="ALL">ALL</option><option value="FIRE">Fire</option><option value="WATER">Water</option><option value="WIND">Wind</option><option value="EARTH">Earth</option></select>
+                        <button id="curr-x2-2" data-active="false" class="btn-x2 inactive" onclick="toggleX2('curr-x2-2')">x2</button>
+                    </div>
+                    <div class="amp-row">
+                        <input type="number" id="curr-amp3" step="0.01" placeholder="AMP 3" oninput="calculateAll()">
+                        <select id="curr-type3" onchange="calculateAll()"><option value="ALL">ALL</option><option value="FIRE">Fire</option><option value="WATER">Water</option><option value="WIND">Wind</option><option value="EARTH">Earth</option></select>
+                        <button id="curr-x2-3" data-active="false" class="btn-x2 inactive" onclick="toggleX2('curr-x2-3')">x2</button>
+                    </div>
+                    <div class="amp-row">
+                        <input type="number" id="curr-amp4" step="0.01" placeholder="AMP 4" oninput="calculateAll()">
+                        <select id="curr-type4" onchange="calculateAll()"><option value="ALL">ALL</option><option value="FIRE">Fire</option><option value="WATER">Water</option><option value="WIND">Wind</option><option value="EARTH">Earth</option></select>
+                        <button id="curr-x2-4" data-active="false" class="btn-x2 inactive" onclick="toggleX2('curr-x2-4')">x2</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border border-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.2)] relative">
+                <div class="absolute top-4 right-4 text-xs font-bold bg-blue-900 px-2 py-1 rounded text-blue-300">RIGHT</div>
+                <h2 class="text-xl font-bold mb-4 text-blue-300">New Accessory</h2>
+                
+                <div class="input-group mb-4 grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-sm font-semibold mb-1 block">Element</label>
+                        <select id="new-element" onchange="calculateAll()">
+                            <option value="FIRE">Fire</option>
+                            <option value="WATER">Water</option>
+                            <option value="WIND">Wind</option>
+                            <option value="EARTH">Earth</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold mb-1 block">Main Stat (%)</label>
+                        <input type="number" id="new-main" step="0.01" placeholder="e.g., 5.1" oninput="calculateAll()">
+                    </div>
+                </div>
+                
+                <h3 class="text-sm font-semibold text-gray-400 mt-4 mb-2">AMP Lines (%)</h3>
+                <div class="space-y-2 input-group">
+                    <div class="amp-row">
+                        <input type="number" id="new-amp1" step="0.01" placeholder="AMP 1" oninput="calculateAll()">
+                        <select id="new-type1" onchange="calculateAll()"><option value="ALL">ALL</option><option value="FIRE">Fire</option><option value="WATER">Water</option><option value="WIND">Wind</option><option value="EARTH">Earth</option></select>
+                        <button id="new-x2-1" data-active="false" class="btn-x2 inactive" onclick="toggleX2('new-x2-1')">x2</button>
+                    </div>
+                    <div class="amp-row">
+                        <input type="number" id="new-amp2" step="0.01" placeholder="AMP 2" oninput="calculateAll()">
+                        <select id="new-type2" onchange="calculateAll()"><option value="ALL">ALL</option><option value="FIRE">Fire</option><option value="WATER">Water</option><option value="WIND">Wind</option><option value="EARTH">Earth</option></select>
+                        <button id="new-x2-2" data-active="false" class="btn-x2 inactive" onclick="toggleX2('new-x2-2')">x2</button>
+                    </div>
+                    <div class="amp-row">
+                        <input type="number" id="new-amp3" step="0.01" placeholder="AMP 3" oninput="calculateAll()">
+                        <select id="new-type3" onchange="calculateAll()"><option value="ALL">ALL</option><option value="FIRE">Fire</option><option value="WATER">Water</option><option value="WIND">Wind</option><option value="EARTH">Earth</option></select>
+                        <button id="new-x2-3" data-active="false" class="btn-x2 inactive" onclick="toggleX2('new-x2-3')">x2</button>
+                    </div>
+                    <div class="amp-row">
+                        <input type="number" id="new-amp4" step="0.01" placeholder="AMP 4" oninput="calculateAll()">
+                        <select id="new-type4" onchange="calculateAll()"><option value="ALL">ALL</option><option value="FIRE">Fire</option><option value="WATER">Water</option><option value="WIND">Wind</option><option value="EARTH">Earth</option></select>
+                        <button id="new-x2-4" data-active="false" class="btn-x2 inactive" onclick="toggleX2('new-x2-4')">x2</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-6 border border-gray-700 bg-gray-800">
+            <h3 class="text-lg font-bold text-gray-300 mb-4 border-b border-gray-600 pb-2">AMPs for Elements (Accessory Stats Only)</h3>
+            <div class="grid grid-cols-3 gap-4 text-sm">
+                <div class="font-bold text-gray-400">Element</div>
+                <div class="font-bold text-center text-gray-400">Current Accessory</div>
+                <div class="font-bold text-center text-blue-400">New Accessory</div>
+                
+                <div class="text-red-400 font-semibold">FIRE</div>
+                <div id="grid-curr-fire" class="text-center font-mono text-gray-300">0.00%</div>
+                <div id="grid-new-fire" class="text-center font-mono text-blue-200">0.00%</div>
+
+                <div class="text-blue-400 font-semibold">WATER</div>
+                <div id="grid-curr-water" class="text-center font-mono text-gray-300">0.00%</div>
+                <div id="grid-new-water" class="text-center font-mono text-blue-200">0.00%</div>
+
+                <div class="text-green-400 font-semibold">WIND</div>
+                <div id="grid-curr-wind" class="text-center font-mono text-gray-300">0.00%</div>
+                <div id="grid-new-wind" class="text-center font-mono text-blue-200">0.00%</div>
+
+                <div class="text-yellow-600 font-semibold">EARTH</div>
+                <div id="grid-curr-earth" class="text-center font-mono text-gray-300">0.00%</div>
+                <div id="grid-new-earth" class="text-center font-mono text-blue-200">0.00%</div>
+            </div>
+        </div>
+
+        <div class="card mt-6 border border-gray-700 bg-gray-800">
+            <h3 class="text-lg font-bold text-gray-300 mb-4 border-b border-gray-600 pb-2">True Relative Damage Increase</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-400 border border-gray-700">
+                    <thead class="text-xs text-gray-500 uppercase bg-gray-700">
+                        <tr>
+                            <th rowspan="2" class="px-4 py-3 align-middle border-r border-gray-600 rounded-tl">Attribute</th>
+                            <th colspan="2" class="px-4 py-2 text-center border-r border-gray-600 border-b border-gray-600 text-gray-300">Current Accessory</th>
+                            <th colspan="2" class="px-4 py-2 text-center border-r border-gray-600 border-b border-gray-600 text-blue-400">New Accessory</th>
+                            <th colspan="2" class="px-4 py-2 text-center border-b border-gray-600 text-gray-100 rounded-tr">Relative Total Change</th>
+                        </tr>
+                        <tr class="text-[10px] tracking-widest">
+                            <th class="px-2 py-1 text-center bg-gray-800 text-gray-400 border-r border-gray-700">Element Only</th>
+                            <th class="px-2 py-1 text-center bg-gray-800 border-r border-gray-600 text-gray-300">Elem + Main ATK</th>
+                            
+                            <th class="px-2 py-1 text-center bg-gray-800 text-blue-500/70 border-r border-gray-700">Element Only</th>
+                            <th class="px-2 py-1 text-center bg-gray-800 border-r border-gray-600 text-blue-300">Elem + Main ATK</th>
+                            
+                            <th class="px-2 py-1 text-center bg-gray-800 text-purple-300 border-r border-gray-700">Element Only</th>
+                            <th class="px-2 py-1 text-center bg-gray-800 text-purple-300">Elem + Main ATK</th>
+                        </tr>
+                    </thead>
+                    <tbody id="relative-change-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="results-panel" class="mt-8 transition-opacity duration-300 opacity-50">
+            <div class="card border-2 border-gray-500 text-center">
+                <h2 class="text-2xl font-bold mb-4 text-white">Comparison Result</h2>
+                
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-800 p-3 rounded border border-gray-600">
+                        <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Current Damage (Proxy)</p>
+                        <p id="curr-proxy-display" class="text-2xl font-mono text-gray-300">0.00</p>
+                    </div>
+                    <div class="bg-gray-800 p-3 rounded border border-blue-900">
+                        <p class="text-xs text-blue-400 uppercase tracking-wider mb-1">New Damage (Proxy)</p>
+                        <p id="new-proxy-display" class="text-2xl font-mono text-blue-300">0.00</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 rounded p-4 border border-gray-700">
+                    <p class="text-sm text-gray-400 uppercase tracking-wider mb-1">Verdict</p>
+                    <p id="verdict-display" class="text-2xl font-black tracking-wide text-gray-500">Awaiting Input...</p>
+                    <p id="verdict-reason" class="text-sm mt-2 font-medium italic text-gray-400"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // STRICT ROUNDING FUNCTION
+        function r2(num) {
+            return parseFloat(Number(num || 0).toFixed(2));
+        }
+
+        function getVal(id) {
+            let rawVal = document.getElementById(id).value;
+            if (!rawVal) return 0;
+            return r2(rawVal);
+        }
+
+        function toggleX2(btnId) {
+            const btn = document.getElementById(btnId);
+            const isActive = btn.getAttribute('data-active') === 'true';
+            
+            if (isActive) {
+                btn.setAttribute('data-active', 'false');
+                btn.classList.remove('active');
+                btn.classList.add('inactive');
+            } else {
+                btn.setAttribute('data-active', 'true');
+                btn.classList.remove('inactive');
+                btn.classList.add('active');
+            }
+            calculateAll();
+        }
+
+        function getAmpValWithX2(prefix, lineNum) {
+            let val = getVal(`${prefix}-amp${lineNum}`);
+            const btn = document.getElementById(`${prefix}-x2-${lineNum}`);
+            if (btn && btn.getAttribute('data-active') === 'true') {
+                val = r2(val * 2);
+            }
+            return val;
+        }
+
+        // GENERATE BASE ROWS
+        function addBaseRow(tbody, label, currVal, newVal, labelColorClass, isMainStat, baseElem) {
+            let diffTotal = 0;
+            
+            if (isMainStat) {
+                let currMult = 1 + (currVal / 100);
+                let newMult = 1 + (newVal / 100);
+                diffTotal = (newMult / currMult - 1) * 100;
+            } else {
+                let currMult = 1 + baseElem + (currVal / 100);
+                let newMult = 1 + baseElem + (newVal / 100);
+                diffTotal = (newMult / currMult - 1) * 100;
+            }
+            
+            let diffTotalStr = `${diffTotal.toFixed(2)}%`;
+            if (diffTotal > 0) diffTotalStr = `+${diffTotalStr}`;
+            else if (diffTotal === 0) diffTotalStr = "0.00%";
+            
+            let diffTotalColor = diffTotal > 0 ? 'text-green-400' : (diffTotal < 0 ? 'text-red-400' : 'text-gray-500');
+            
+            tbody.innerHTML += `
+                <tr class="border-b border-gray-700 bg-gray-800/50 transition-colors">
+                    <td class="px-4 py-3 font-semibold ${labelColorClass} border-r border-gray-700">${label}</td>
+                    
+                    <td class="px-4 py-3 text-center font-mono text-gray-600 border-r border-gray-700">-</td>
+                    <td class="px-4 py-3 text-center font-mono border-r border-gray-700">${currVal.toFixed(2)}%</td>
+                    
+                    <td class="px-4 py-3 text-center font-mono text-gray-600 border-r border-gray-700">-</td>
+                    <td class="px-4 py-3 text-center font-mono text-blue-300 border-r border-gray-700">${newVal.toFixed(2)}%</td>
+                    
+                    <td class="px-4 py-3 text-center font-mono text-gray-600 border-r border-gray-700">-</td>
+                    <td class="px-4 py-3 text-center font-mono font-bold ${diffTotalColor}">${diffTotalStr}</td>
+                </tr>
+            `;
+        }
+
+        // GENERATE ELEMENT ROWS
+        function addElementRow(tbody, label, currElemFlat, newElemFlat, currMain, newMain, baseElem, labelColorClass) {
+            
+            let currTotalFlat = ((1 + currElemFlat/100) * (1 + currMain/100) - 1) * 100;
+            let newTotalFlat = ((1 + newElemFlat/100) * (1 + newMain/100) - 1) * 100;
+
+            let currElemMult = 1 + baseElem + (currElemFlat/100);
+            let newElemMult  = 1 + baseElem + (newElemFlat/100);
+            
+            let currTotalMult = currElemMult * (1 + currMain/100);
+            let newTotalMult  = newElemMult * (1 + newMain/100);
+
+            // Diff 1: Element Only
+            const diffElem = (newElemMult / currElemMult - 1) * 100;
+            let diffElemStr = `${diffElem.toFixed(2)}%`;
+            if (diffElem > 0) diffElemStr = `+${diffElemStr}`;
+            else if (diffElem === 0) diffElemStr = "0.00%";
+            let diffElemColor = diffElem > 0 ? 'text-green-400' : (diffElem < 0 ? 'text-red-400' : 'text-gray-500');
+
+            // Diff 2: Elem + Main ATK Multiplied
+            const diffTotal = r2((newTotalMult / currTotalMult - 1) * 100);
+            let diffTotalStr = `${diffTotal.toFixed(2)}%`;
+            if (diffTotal > 0) diffTotalStr = `+${diffTotalStr}`;
+            else if (diffTotal === 0) diffTotalStr = "0.00%";
+            let diffTotalColor = diffTotal > 0 ? 'text-green-400' : (diffTotal < 0 ? 'text-red-400' : 'text-gray-500');
+            
+            tbody.innerHTML += `
+                <tr class="border-b border-gray-700 bg-gray-800 hover:bg-gray-700 transition-colors">
+                    <td class="px-4 py-3 font-semibold ${labelColorClass} border-r border-gray-700">${label}</td>
+                    
+                    <td class="px-4 py-3 text-center font-mono text-gray-400 bg-gray-800/30 border-r border-gray-700">${currElemFlat.toFixed(2)}%</td>
+                    <td class="px-4 py-3 text-center font-mono border-r border-gray-700">${currTotalFlat.toFixed(2)}%</td>
+                    
+                    <td class="px-4 py-3 text-center font-mono text-blue-500/70 bg-gray-800/30 border-r border-gray-700">${newElemFlat.toFixed(2)}%</td>
+                    <td class="px-4 py-3 text-center font-mono text-blue-300 border-r border-gray-700">${newTotalFlat.toFixed(2)}%</td>
+                    
+                    <td class="px-4 py-3 text-center font-mono font-bold bg-gray-800/30 border-r border-gray-700 ${diffElemColor}">${diffElemStr}</td>
+                    <td class="px-4 py-3 text-center font-mono font-bold ${diffTotalColor}">${diffTotalStr}</td>
+                </tr>
+            `;
+
+            return { diffElem, diffTotal, currTotalMult, newTotalMult };
+        }
+
+        function calculateAll() {
+            let baseElem = 0; // Hardcoded to 0 for flawless multiplier tracking
+
+            const selectedElement = document.getElementById('new-element').value;
+            document.getElementById('curr-element').value = selectedElement;
+
+            let currMain = getVal('curr-main');
+            let newMain = getVal('new-main');
+
+            // Collect AMPs
+            let currAmps = { WIND: 0, EARTH: 0, FIRE: 0, WATER: 0, ALL: 0 };
+            for(let i=1; i<=4; i++) {
+                let val = getAmpValWithX2('curr', i);
+                let type = document.getElementById(`curr-type${i}`).value;
+                currAmps[type] = r2(currAmps[type] + val);
+            }
+            
+            let newAmps = { WIND: 0, EARTH: 0, FIRE: 0, WATER: 0, ALL: 0 };
+            for(let i=1; i<=4; i++) {
+                let val = getAmpValWithX2('new', i);
+                let type = document.getElementById(`new-type${i}`).value;
+                newAmps[type] = r2(newAmps[type] + val);
+            }
+
+            // Clean Table
+            const tbody = document.getElementById('relative-change-body');
+            tbody.innerHTML = ''; 
+            
+            // Build Table
+            addBaseRow(tbody, 'Black Orb ATK (Main Stat %)', currMain, newMain, 'text-gray-300', true, baseElem);
+            addBaseRow(tbody, 'Amp All Attribute', currAmps.ALL, newAmps.ALL, 'text-purple-400', false, baseElem);
+            
+            let currFireFlat = r2(currAmps.ALL + currAmps.FIRE);
+            let newFireFlat = r2(newAmps.ALL + newAmps.FIRE);
+            let fireMath = addElementRow(tbody, 'Fire Attribute', currFireFlat, newFireFlat, currMain, newMain, baseElem, 'text-red-400');
+
+            let currWaterFlat = r2(currAmps.ALL + currAmps.WATER);
+            let newWaterFlat = r2(newAmps.ALL + newAmps.WATER);
+            let waterMath = addElementRow(tbody, 'Water Attribute', currWaterFlat, newWaterFlat, currMain, newMain, baseElem, 'text-blue-400');
+
+            let currWindFlat = r2(currAmps.ALL + currAmps.WIND);
+            let newWindFlat = r2(newAmps.ALL + newAmps.WIND);
+            let windMath = addElementRow(tbody, 'Wind Attribute', currWindFlat, newWindFlat, currMain, newMain, baseElem, 'text-green-400');
+
+            let currEarthFlat = r2(currAmps.ALL + currAmps.EARTH);
+            let newEarthFlat = r2(newAmps.ALL + newAmps.EARTH);
+            let earthMath = addElementRow(tbody, 'Earth Attribute', currEarthFlat, newEarthFlat, currMain, newMain, baseElem, 'text-yellow-600');
+
+            // Update AMPs for Elements Grid UI
+            document.getElementById('grid-curr-fire').innerText = `${currFireFlat.toFixed(2)}%`;
+            document.getElementById('grid-new-fire').innerText = `${newFireFlat.toFixed(2)}%`;
+
+            document.getElementById('grid-curr-water').innerText = `${currWaterFlat.toFixed(2)}%`;
+            document.getElementById('grid-new-water').innerText = `${newWaterFlat.toFixed(2)}%`;
+
+            document.getElementById('grid-curr-wind').innerText = `${currWindFlat.toFixed(2)}%`;
+            document.getElementById('grid-new-wind').innerText = `${newWindFlat.toFixed(2)}%`;
+
+            document.getElementById('grid-curr-earth').innerText = `${currEarthFlat.toFixed(2)}%`;
+            document.getElementById('grid-new-earth').innerText = `${newEarthFlat.toFixed(2)}%`;
+
+            // Calculate Proxy Scores for Tie Breaker logic
+            let currScore = fireMath.currTotalMult + waterMath.currTotalMult + windMath.currTotalMult + earthMath.currTotalMult;
+            let newScore = fireMath.newTotalMult + waterMath.newTotalMult + windMath.newTotalMult + earthMath.newTotalMult;
+
+            // Update Proxy Display
+            document.getElementById('curr-proxy-display').innerText = currScore.toFixed(2);
+            document.getElementById('new-proxy-display').innerText = newScore.toFixed(2);
+
+            // Fetch UI Elements
+            const panelEl = document.getElementById('results-panel');
+            const verdictEl = document.getElementById('verdict-display');
+            const reasonEl = document.getElementById('verdict-reason');
+            
+            if (currScore === 4 && newScore === 4) { 
+                panelEl.classList.add('opacity-50');
+                verdictEl.innerText = "Awaiting Input...";
+                verdictEl.className = "text-2xl font-black tracking-wide text-gray-500";
+                reasonEl.innerText = "";
+                return;
+            }
+
+            panelEl.classList.remove('opacity-50');
+
+            // BULLETPROOF VERDICT LOGIC: Reads Directly from the Calculated Percentage Difference
+            if (fireMath.diffTotal > 0) {
+                verdictEl.innerText = "EQUIP NEW ACCESSORY (RIGHT)";
+                verdictEl.className = "text-3xl font-black tracking-wide text-green-400";
+                reasonEl.innerText = "You should pick the new one since it has a higher true Fire attribute multiplier.";
+                reasonEl.className = "text-sm mt-2 font-medium italic text-green-300";
+            } 
+            else if (fireMath.diffTotal < 0) {
+                verdictEl.innerText = "KEEP CURRENT ACCESSORY (LEFT)";
+                verdictEl.className = "text-3xl font-black tracking-wide text-red-400";
+                reasonEl.innerText = "You should keep the current one since it has a higher true Fire attribute multiplier.";
+                reasonEl.className = "text-sm mt-2 font-medium italic text-red-300";
+            } 
+            else {
+                // TIE BREAKER
+                let proxyDiff = r2(newScore - currScore);
+                
+                if (proxyDiff > 0) {
+                    verdictEl.innerText = "EQUIP NEW ACCESSORY (RIGHT)";
+                    verdictEl.className = "text-3xl font-black tracking-wide text-green-400";
+                    reasonEl.innerText = "Fire attributes are perfectly tied, but the new accessory provides better overall elemental coverage.";
+                    reasonEl.className = "text-sm mt-2 font-medium italic text-green-300";
+                } else if (proxyDiff < 0) {
+                    verdictEl.innerText = "KEEP CURRENT ACCESSORY (LEFT)";
+                    verdictEl.className = "text-3xl font-black tracking-wide text-red-400";
+                    reasonEl.innerText = "Fire attributes are perfectly tied, but your current accessory provides better overall elemental coverage.";
+                    reasonEl.className = "text-sm mt-2 font-medium italic text-red-300";
+                } else {
+                    verdictEl.innerText = "TIE (Check HP Stats)";
+                    verdictEl.className = "text-3xl font-black tracking-wide text-gray-300";
+                    reasonEl.innerText = "Both Fire attributes and overall elemental damage are mathematically identical.";
+                    reasonEl.className = "text-sm mt-2 font-medium italic text-gray-400";
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            calculateAll();
+        });
+    </script>
+</body>
+</html>
